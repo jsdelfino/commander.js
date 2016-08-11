@@ -266,6 +266,7 @@ Command.prototype.action = function(fn) {
     args = args || [];
     unknown = unknown || [];
 
+    self.parseOptions(args);
     var parsed = self.parseOptions(unknown);
 
     // Output help if necessary
