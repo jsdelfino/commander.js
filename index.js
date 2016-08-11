@@ -467,10 +467,26 @@ Command.prototype.parse = function(argv, reset) {
   var parsed = this.parseOptions(this.normalize(argv.slice(2)));
   var args = this.args = parsed.args;
 
+  // sub-commands
+  if(reset) {
+    for (var i = 0; i < this.commands.length; i++) {
+      var name = this.commands[i].name();
+      delete this[name != 'help' ? name : '_help'];
+    }
+  }
+
+  var name = this.args[0];
+
+  for(var i = 0; i < this.commands.length; i++) {
+    if (this.commands[i].name() === name) {
+      this[name != 'help' ? name : '_help'] = this.commands[i];
+    }
+  }
+
   var result = this.parseArgs(this.args, parsed.unknown);
 
   // executable sub-commands
-  var name = result.args[0];
+  name = result.args[0];
 
   var aliasCommand = null;
   // check alias of sub commands
