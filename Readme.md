@@ -1,3 +1,9 @@
+# Commanderx.js
+
+
+  This is a fork of TJ Holowaychuk's [commander.js](https://github.com/tj/commander.js), with a few minimal additions (which I intend to submit to [commander.js](https://github.com/tj/commander.js) as pull requests).
+
+
 # Commander.js
 
 

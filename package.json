@@ -1,7 +1,7 @@
 {
-  "name": "commander",
+  "name": "commanderx",
   "version": "2.9.0",
-  "description": "the complete solution for node.js command-line programs",
+  "description": "A fork of commander.js, the complete solution for node.js command-line programs",
   "keywords": [
     "commander",
     "command",
@@ -12,7 +12,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tj/commander.js.git"
+    "url": "https://github.com/jsdelfino/commanderx.js.git"
   },
   "devDependencies": {
     "should": ">= 0.0.1 <9.0.0",
