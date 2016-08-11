@@ -440,7 +440,7 @@ Command.prototype.allowUnknownOption = function(arg) {
  * @api public
  */
 
-Command.prototype.parse = function(argv) {
+Command.prototype.parse = function(argv, reset) {
   // implicit help
   if (this.executables) this.addImplicitHelpCommand();
 
@@ -457,6 +457,8 @@ Command.prototype.parse = function(argv) {
   }
 
   // process argv
+  if (reset)
+    this.resetOptions();
   var parsed = this.parseOptions(this.normalize(argv.slice(2)));
   var args = this.args = parsed.args;
 
@@ -660,6 +662,24 @@ Command.prototype.optionFor = function(arg) {
     if (this.options[i].is(arg)) {
       return this.options[i];
     }
+  }
+};
+
+/**
+ * Reset options of a command and its child commands
+ *
+ * @api public
+ */
+
+Command.prototype.resetOptions = function() {
+  var len = this.options.length;
+  for (var i = 0 ; i < this.options.length; i++) {
+    var key = camelcase(this.options[i].name());
+    delete this[key];
+  }
+  len = this.commands.length;
+  for (var i = 0; i < this.commands.length; i++) {
+    this.commands[i].resetOptions();
   }
 };
 
