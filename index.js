@@ -435,7 +435,7 @@ Command.prototype.allowUnknownOption = function(arg) {
 /**
  * Parse `argv`, settings options and invoking commands when defined.
  *
- * @param {Array} argv
+ * @param {Array} argv 
  * @return {Command} for chaining
  * @api public
  */
@@ -443,6 +443,10 @@ Command.prototype.allowUnknownOption = function(arg) {
 Command.prototype.parse = function(argv, reset) {
   // implicit help
   if (this.executables) this.addImplicitHelpCommand();
+
+  // convert string argv to an array of args
+  if(typeof argv == 'string')
+    argv = argv.split(/\s/).filter(function(arg) { return arg.length; });
 
   // store raw args
   this.rawArgs = argv;
