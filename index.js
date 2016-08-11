@@ -40,6 +40,10 @@ function Option(flags, description) {
   this.flags = flags;
   this.required = ~flags.indexOf('<');
   this.optional = ~flags.indexOf('[');
+  if (this.flags.length > 3 && this.flags.slice(-3) === '...') {
+    this.variadic = true;
+    this.flags = flags.slice(0, -3);
+  }
   this.bool = !~flags.indexOf('-no-');
   flags = flags.split(/[ ,|]+/);
   if (flags.length > 1 && !/^[[<]/.test(flags[1])) this.short = flags.shift();
@@ -696,8 +700,29 @@ Command.prototype.parseOptions = function(argv) {
 
     // option is defined
     if (option) {
+      // variadic arg
+      if(option.variadic) {
+        var varg = [];
+        do {
+          arg = argv[i+1];
+          if (null == arg || ('-' == arg[0] && '-' != arg) || this.optionFor(arg)) {
+            arg = null;
+          } else {
+            varg.push(arg);
+            ++i;
+          }
+        } while(arg != null);
+        // requires arg
+        if(option.required) {
+          if(varg.length == 0) return this.optionMissingArgument(option);
+          this.emit(option.name(), varg.join(' '));
+        // optional arg
+        } else {
+          this.emit(option.name(), varg.length ? varg.join(' ') : null);
+        }
+      }
       // requires arg
-      if (option.required) {
+      else if (option.required) {
         arg = argv[++i];
         if (null == arg) return this.optionMissingArgument(option);
         this.emit(option.name(), arg);
