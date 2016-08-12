@@ -471,7 +471,7 @@ Command.prototype.parse = function(argv, reset) {
   if(reset) {
     for (var i = 0; i < this.commands.length; i++) {
       var name = this.commands[i].name();
-      delete this[name != 'help' ? name : '_help'];
+      delete this[name];
     }
   }
 
@@ -479,7 +479,7 @@ Command.prototype.parse = function(argv, reset) {
 
   for(var i = 0; i < this.commands.length; i++) {
     if (this.commands[i].name() === name) {
-      this[name != 'help' ? name : '_help'] = this.commands[i];
+      this[name] = this.commands[i];
     }
   }
 
@@ -523,8 +523,8 @@ Command.prototype.parse = function(argv, reset) {
 Command.prototype.executeSubCommand = function(argv, args, unknown) {
   args = args.concat(unknown);
 
-  if (!args.length) this.help();
-  if ('help' == args[0] && 1 == args.length) this.help();
+  if (!args.length) this.outputHelp();
+  if ('help' == args[0] && 1 == args.length) this.outputHelp();
 
   // <cmd> --help
   if ('help' == args[0]) {
@@ -954,7 +954,7 @@ Command.prototype.usage = function(str) {
     return humanReadableArgName(arg);
   });
 
-  var usage = '[options]'
+  var usage = (this.options.length ? ' [options]' : '')
     + (this.commands.length ? ' [command]' : '')
     + (this._args.length ? ' ' + args.join(' ') : '');
 
@@ -997,14 +997,18 @@ Command.prototype.largestOptionLength = function() {
  */
 
 Command.prototype.optionHelp = function() {
+  if (!this.options.length) return null;
+
   var width = this.largestOptionLength();
 
-  // Prepend the help information
-  return [pad('-h, --help', width) + '  ' + 'output usage information']
-      .concat(this.options.map(function(option) {
-        return pad(option.flags, width) + '  ' + option.description;
-      }))
-      .join('\n');
+  return [
+    '  Options:'
+    , this.options.map(function(option) {
+        return '    ' + pad(option.flags, width) + '  ' + option.description;
+      })
+      .join('\n')
+    , ''
+  ].join('\n');
 };
 
 /**
@@ -1015,7 +1019,7 @@ Command.prototype.optionHelp = function() {
  */
 
 Command.prototype.commandHelp = function() {
-  if (!this.commands.length) return '';
+  if (!this.commands.length) return null
 
   var commands = this.commands.filter(function(cmd) {
     return !cmd._noHelp;
@@ -1038,9 +1042,7 @@ Command.prototype.commandHelp = function() {
   }, 0);
 
   return [
-    ''
-    , '  Commands:'
-    , ''
+    '  Commands:'
     , commands.map(function(cmd) {
       var desc = cmd[1] ? '  ' + cmd[1] : '';
       return pad(cmd[0], width) + desc;
@@ -1070,8 +1072,7 @@ Command.prototype.helpInformation = function() {
     cmdName = cmdName + '|' + this._alias;
   }
   var usage = [
-    ''
-    ,'  Usage: ' + cmdName + ' ' + this.usage()
+    ,'  Usage: ' + cmdName + this.usage()
     , ''
   ];
 
@@ -1079,18 +1080,15 @@ Command.prototype.helpInformation = function() {
   var commandHelp = this.commandHelp();
   if (commandHelp) cmds = [commandHelp];
 
-  var options = [
-    '  Options:'
-    , ''
-    , '' + this.optionHelp().replace(/^/gm, '    ')
-    , ''
-    , ''
-  ];
+  var options = [];
+  var optionHelp = this.optionHelp();
+  if (optionHelp) options = [optionHelp];
 
   return usage
-    .concat(cmds)
     .concat(desc)
+    .concat(cmds)
     .concat(options)
+    .concat([''])
     .join('\n');
 };
 
@@ -1108,16 +1106,6 @@ Command.prototype.outputHelp = function(cb) {
   }
   process.stdout.write(cb(this.helpInformation()));
   this.emit('--help');
-};
-
-/**
- * Output help information and exit.
- *
- * @api public
- */
-
-Command.prototype.help = function(cb) {
-  this.outputHelp(cb);
   process.exit();
 };
 
@@ -1162,7 +1150,6 @@ function outputHelpIfNecessary(cmd, options) {
   for (var i = 0; i < options.length; i++) {
     if (options[i] == '--help' || options[i] == '-h') {
       cmd.outputHelp();
-      process.exit(0);
     }
   }
 }
