@@ -1,6 +1,6 @@
 {
   "name": "commanderx",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "description": "A fork of commander.js, the complete solution for node.js command-line programs",
   "keywords": [
     "commander",
