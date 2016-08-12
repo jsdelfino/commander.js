@@ -19,12 +19,12 @@ program
   .option('-c, --config <path>', 'set config path. defaults to ./deploy.conf')
   .option('-T, --no-tests', 'ignore test hook');
 
-program.parse('--config conf');
+program.parse('test --config conf');
 program.config.should.equal("conf");
 cmdValue.should.equal("");
 envValue.should.equal("");
 
-program.parse('--config conf1 setup --setup_mode mode3 env1');
+program.parse('test --config conf1 setup --setup_mode mode3 env1');
 program.config.should.equal("conf1");
 cmdValue.should.equal("setup");
 envValue.should.equal("env1");

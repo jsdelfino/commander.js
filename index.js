@@ -446,7 +446,7 @@ Command.prototype.parse = function(argv, reset) {
 
   // convert string argv to an array of args
   if(typeof argv == 'string')
-    argv = process.argv.slice(0, 2)
+    argv = process.argv.slice(0, 1)
       .concat(argv.split(/\s/).filter(function(arg) { return arg.length; }));
 
   // store raw args
